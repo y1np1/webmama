@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Order List</h1>
+    <div id="order-form">
+        <label for="numero-prenda">Número de Prenda:</label>
+        <input type="text" id="numero-prenda" placeholder="Ingresa el numero de prenda">
+        
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" placeholder="Ingresa el precio">
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" placeholder="Ingresa el nombre">
+
+        <button onclick="addOrder()">Add Order</button>
+        <button onclick="clearHistory()">Clear History</button>
+        <button onclick="generateTxtFile()">Generate Purchase History .txt</button>
+
+    </div>
+
+    <h2>Order History</h2>
+    <ul id="order-list">
+        <!-- Order items will be added here dynamically -->
+    </ul>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
