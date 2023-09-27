@@ -173,7 +173,7 @@ function generateTxtFile() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "purchase_history.txt";
+    a.download = "historial_de_compras.txt";
 
     // Trigger a click event on the link to start the download
     a.click();
