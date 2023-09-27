@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order List</title>
+    <title>Ventas</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Order List</h1>
+    <h1>Lista de prendas</h1>
     <div id="order-form">
         <label for="numero-prenda">Número de Prenda:</label>
-        <input type="text" id="numero-prenda" placeholder="Ingresa el numero de prenda">
+        <input type="number" id="numero-prenda" placeholder="Ingresa el numero de prenda">
         
         <label for="precio">Precio:</label>
         <input type="number" id="precio" placeholder="Ingresa el precio">
@@ -18,18 +18,21 @@
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" placeholder="Ingresa el nombre">
 
-        <button onclick="addOrder()">Add Order</button>
-        <button onclick="clearHistory()">Clear History</button>
-        <button onclick="generateTxtFile()">Generate Purchase History .txt</button>
+        <button onclick="addOrder()">Adjudicar</button>
+        <button onclick="clearHistory()">Borrar historial</button>
+        <button onclick="generateTxtFile()">Generar respaldo</button>
 
     </div>
 
-    <h2>Order History</h2>
-    <ul id="order-list">
-        <!-- Order items will be added here dynamically -->
-    </ul>
+<ul id="order-list">
+    <!-- Order items will be added here dynamically -->
+</ul>
+<!-- Add this div for total sales amount -->
+<div id="total-sales">Total: <span id="total-sales-amount">0</span></div>
 
-    <script src="script.js"></script>
+<!-- Agrega el botón "Borrar Prenda" aquí -->
+<button id="remove-order-button" style="display: none;">Borrar Prenda</button>
+
+<script src="script.js"></script>
 </body>
 </html>
-
