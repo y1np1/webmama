@@ -62,7 +62,7 @@ function viewOrderHistory(nombre) {
     orderList.innerHTML = "";
 
     const backButton = document.createElement("button");
-    backButton.textContent = "Back to Total Prices";
+    backButton.textContent = "Volver a totales";
     backButton.className = "back-button";
     backButton.addEventListener("click", calculateTotalPrice);
     orderList.appendChild(backButton);
