@@ -24,7 +24,7 @@ function calculateTotalPrice() {
         
         // Create a button to view order history for this person
         const historyButton = document.createElement("button");
-        historyButton.textContent = "View History";
+        historyButton.textContent = "Ver Historial";
         historyButton.className = "view-history-button";
         historyButton.addEventListener("click", () => viewOrderHistory(nombre));
         listItem.appendChild(historyButton);
