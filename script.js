@@ -1,183 +1,221 @@
-// Function to calculate and display total price for each person
-function calculateTotalPrice() {
-    const orders = JSON.parse(localStorage.getItem("orders")) || {};
-    const totalPrices = {};
+document.addEventListener("DOMContentLoaded", function () {
+    // Elements
+    const garmentNumberInput = document.getElementById("garment-number");
+    const garmentValueInput = document.getElementById("garment-value");
+    const awardedPersonSelect = document.getElementById("awarded-person-select");
+    const newPersonInput = document.getElementById("new-person");
+    const addPersonButton = document.getElementById("add-person-button");
+    const submitButton = document.getElementById("submit-button");
+    const clearHistoryButton = document.getElementById("clear-history-button");
+    const orderList = document.getElementById("order-summary");
+    const logList = document.getElementById("log-list");
+    const exportHistoryButton = document.getElementById("export-history-button");
+    const exportTotalsButton = document.getElementById("export-totals-button");
 
-    // Calculate total price for each person
-    orders.forEach(order => {
-        const nombre = order.nombre;
-        const precio = parseFloat(order.precio);
+    // Sales history arrays with local storage
+    let orderHistory = JSON.parse(localStorage.getItem("orderHistory")) || [];
+    const itemLog = [];
 
-        if (!isNaN(precio)) {
-            totalPrices[nombre] = (totalPrices[nombre] || 0) + precio;
+    // Function to populate the select element with awarded persons
+    function populateAwardedPersons() {
+        const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
+        awardedPersonSelect.innerHTML = "";
+
+        uniquePersons.sort();
+        uniquePersons.forEach(person => {
+            const option = document.createElement("option");
+            option.value = person;
+            option.textContent = person;
+            awardedPersonSelect.appendChild(option);
+        });
+    }
+
+    // Function to update the person history section
+    function updatePersonHistory() {
+        orderList.innerHTML = "";
+
+        const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
+        uniquePersons.sort();
+
+        uniquePersons.forEach(person => {
+            const personHistory = document.createElement("div");
+            personHistory.className = "person-history";
+            personHistory.innerHTML = `
+                <h3>Historial de: ${person}</h3>
+                <ul>
+                    ${orderHistory
+                        .filter(item => item.awardedPerson === person)
+                        .map(item => `<li>${item.garmentNumber} - $${item.garmentValue}</li>`)
+                        .join('')}
+                </ul>
+            `;
+            orderList.appendChild(personHistory);
+        });
+    }
+
+    // Function to create a delete button and attach it to a garment item
+    function addDeleteButton(garmentItem, garmentIndex) {
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "Borrar Prenda";
+
+        deleteButton.addEventListener("click", function () {
+            orderHistory.splice(garmentIndex, 1);
+
+            // Update local storage
+            localStorage.setItem("orderHistory", JSON.stringify(orderHistory));
+
+            // Update the person history and order summary
+            updatePersonHistory();
+            populateAwardedPersons();
+            updateOrderSummary();
+        });
+
+        garmentItem.appendChild(deleteButton);
+    }
+
+// Function to create a garment item and add hover effect
+function createGarmentItem(garment, garmentIndex) {
+    const garmentItem = document.createElement("li");
+    garmentItem.textContent = `Prenda ${garment.garmentNumber} - $${garment.garmentValue} - Adjudicada Por: ${garment.awardedPerson}`;
+    garmentItem.className = "garment-item";
+
+    garmentItem.addEventListener("mouseenter", function () {
+        addDeleteButton(garmentItem, garmentIndex);
+    });
+
+    garmentItem.addEventListener("mouseleave", function () {
+        const deleteButton = garmentItem.querySelector(".delete-button");
+        if (deleteButton) {
+            deleteButton.remove();
         }
     });
 
-    // Display total prices and order history buttons
-    const orderList = document.getElementById("order-list");
-    orderList.innerHTML = "";
-
-    for (const nombre in totalPrices) {
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `<strong>Nombre:</strong> ${nombre}<br>
-                              <strong>Total Precio:</strong> ${totalPrices[nombre].toFixed(2)}`;
-        
-        // Create a button to view order history for this person
-        const historyButton = document.createElement("button");
-        historyButton.textContent = "Ver Historial";
-        historyButton.className = "view-history-button";
-        historyButton.addEventListener("click", () => viewOrderHistory(nombre));
-        listItem.appendChild(historyButton);
-
-        orderList.appendChild(listItem);
-    }
+    return garmentItem;
 }
 
-// Function to calculate and display total sales amount as an integer
-function calculateTotalSalesAmount() {
-    const orders = JSON.parse(localStorage.getItem("orders")) || {};
-    let totalSalesAmount = 0;
+    // Update the order summary with hover effect
+    function updateOrderSummary() {
+        logList.innerHTML = "";
+        orderHistory.forEach((garment, index) => {
+            const garmentItem = createGarmentItem(garment, index);
+            logList.appendChild(garmentItem);
+        });
+    }
 
-    // Calculate total sales amount as an integer
-    orders.forEach(order => {
-        const precio = parseFloat(order.precio);
+    // Function to export the detailed history as a TXT file
+    function exportDetailedHistory() {
+        const detailedHistory = orderHistory.map(item => `${item.garmentNumber} - $${item.garmentValue} - Awarded to ${item.awardedPerson}`).join('\n');
+        const blob = new Blob([detailedHistory], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'detailed_history.txt';
+        a.click();
+    }
 
-        if (!isNaN(precio)) {
-            totalSalesAmount += Math.round(precio);
+    // Function to export totals per person as a TXT file
+    function exportTotalsPerPerson() {
+        const totals = [];
+        const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
+        uniquePersons.forEach(person => {
+            const total = orderHistory
+                .filter(item => item.awardedPerson === person)
+                .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
+            totals.push(`${person} - Total: $${total}`);
+        });
+
+        const totalsText = totals.join('\n');
+        const blob = new Blob([totalsText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'totals_per_person.txt';
+        a.click();
+    }
+
+    // Event listener for adding persons
+    addPersonButton.addEventListener("click", function () {
+        const newPerson = newPersonInput.value;
+        if (newPerson) {
+            awardedPersonSelect.innerHTML += `<option value="${newPerson}">${newPerson}</option>`;
+            newPersonInput.value = "";
         }
     });
 
-    // Display the total sales amount as an integer
-    const totalSalesAmountSpan = document.getElementById("total-sales-amount");
-    totalSalesAmountSpan.textContent = totalSalesAmount;
-}
+    // Event listener for exporting the detailed history
+    exportHistoryButton.addEventListener("click", exportDetailedHistory);
 
-// Function to view order history for a person
-function viewOrderHistory(nombre) {
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    const personOrders = orders.filter(order => order.nombre === nombre);
+    // Event listener for exporting totals per person
+    exportTotalsButton.addEventListener("click", exportTotalsPerPerson);
 
-    // Display order history for the selected person
-    const orderList = document.getElementById("order-list");
-    orderList.innerHTML = "";
+    // Event listener for submitting a sale
+    submitButton.addEventListener("click", function () {
+        const garmentNumber = garmentNumberInput.value;
+        const garmentValue = garmentValueInput.value;
+        const awardedPerson = awardedPersonSelect.value;
 
-    const backButton = document.createElement("button");
-    backButton.textContent = "Volver a totales";
-    backButton.className = "back-button";
-    backButton.addEventListener("click", calculateTotalPrice);
-    orderList.appendChild(backButton);
+        if (garmentNumber && garmentValue && awardedPerson) {
+            orderHistory.push({ garmentNumber, garmentValue, awardedPerson });
+            
+            // Update local storage
+            localStorage.setItem("orderHistory", JSON.stringify(orderHistory));
 
-    personOrders.forEach(order => {
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `<strong>Número de Prenda:</strong> ${order.numeroPrenda}<br>
-                              <strong>Precio:</strong> ${order.precio}`;
-        
-        // Create a button to remove the order
-        const removeButton = document.createElement("button");
-        removeButton.textContent = "Borrar Prenda";
-        removeButton.className = "remove-order-button";
-        removeButton.addEventListener("click", () => removeOrder(nombre, order.numeroPrenda));
-        listItem.appendChild(removeButton);
+            const orderSummaryItem = document.createElement("li");
+            orderSummaryItem.textContent = `Garment ${garmentNumber} - $${garmentValue} - Awarded to ${awardedPerson}`;
+            logList.appendChild(orderSummaryItem);
 
-        orderList.appendChild(listItem);
-    });
-}
-
-// Function to add an order
-function addOrder() {
-    const numeroPrenda = document.getElementById("numero-prenda").value;
-    const precio = document.getElementById("precio").value;
-    const nombre = document.getElementById("nombre").value;
-
-    if (numeroPrenda && precio && nombre) {
-        const order = {
-            numeroPrenda: numeroPrenda,
-            precio: precio,
-            nombre: nombre
-        };
-
-        // Get existing orders from local storage or initialize an empty array
-        const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-        // Add the new order to the array
-        orders.push(order);
-
-        // Save the updated order list to local storage
-        localStorage.setItem("orders", JSON.stringify(orders));
-
-        // Clear input fields
-        document.getElementById("numero-prenda").value = "";
-        document.getElementById("precio").value = "";
-        document.getElementById("nombre").value = "";
-
-        // Recalculate and display total prices
-        calculateTotalPrice();
-        calculateTotalSalesAmount(); // Call this to update the total sales amount as well
-    }
-}
-
-// Function to clear the order history
-function clearHistory() {
-    localStorage.removeItem("orders");
-    // Clear the displayed order list
-    const orderList = document.getElementById("order-list");
-    orderList.innerHTML = "";
-
-    // Reset the total sales amount
-    const totalSalesAmountSpan = document.getElementById("total-sales-amount");
-    totalSalesAmountSpan.textContent = "0"; // Set it to zero
-}
-
-// Function to remove an order from a person's history
-function removeOrder(nombre, numeroPrenda) {
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    
-    // Find the index of the order to remove
-    const indexToRemove = orders.findIndex(order => order.nombre === nombre && order.numeroPrenda === numeroPrenda);
-    
-    if (indexToRemove !== -1) {
-        // Remove the order from the array
-        orders.splice(indexToRemove, 1);
-        
-        // Save the updated order list to local storage
-        localStorage.setItem("orders", JSON.stringify(orders));
-        
-        // Refresh the order history for the selected person
-        viewOrderHistory(nombre);
-        
-        // Recalculate and display total prices and total sales amount
-        calculateTotalPrice();
-        calculateTotalSalesAmount();
-    }
-}
-
-// Initial calculation and display of total prices and total sales amount
-calculateTotalPrice();
-calculateTotalSalesAmount();
-
-function generateTxtFile() {
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    
-    // Create a string to store the purchase history
-    let txtContent = "Número de Prenda\tPrecio\tNombre\n"; // Column headers
-
-    orders.forEach(order => {
-        const { numeroPrenda, precio, nombre } = order;
-        txtContent += `${numeroPrenda}\t${precio}\t${nombre}\n`;
+            garmentNumberInput.value = "";
+            garmentValueInput.value = "";
+            populateAwardedPersons();
+            updatePersonHistory();
+            updateOrderSummary();
+        } else {
+            alert("Please fill in all fields.");
+        }
     });
 
-    // Create a Blob containing the text
-    const blob = new Blob([txtContent], { type: "text/plain" });
+    // Event listener for clearing the history (with local storage)
+    clearHistoryButton.addEventListener("click", function () {
+        // Show a confirmation dialog
+        const confirmDelete = confirm("Estas seguro que quieres eliminar el historial?");
+        
+        if (confirmDelete) {
+            logList.innerHTML = "";
+            orderHistory.length = 0;
+            localStorage.removeItem("orderHistory");
+            populateAwardedPersons();
+            updatePersonHistory();
+            updateOrderSummary();
+        }
+    });
 
-    // Create a link to download the Blob
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "historial_de_compras.txt";
+    // Find and add an event listener for the "Edit Person" button
+const editPersonButton = document.getElementById("edit-person-button");
+editPersonButton.addEventListener("click", function () {
+    const selectedPerson = awardedPersonSelect.value; // Get the selected person
+    const newPersonName = prompt("Ingresa el nuevo nombre para esta persona:"); // Show a prompt to enter the new name
 
-    // Trigger a click event on the link to start the download
-    a.click();
+    if (newPersonName) {
+        // Update the name in the data structure (orderHistory)
+        orderHistory.forEach(item => {
+            if (item.awardedPerson === selectedPerson) {
+                item.awardedPerson = newPersonName;
+            }
+        });
 
-    // Release the Blob and URL objects
-    window.URL.revokeObjectURL(url);
-}
+        // Update the UI to reflect the new name
+        populateAwardedPersons();
+        updatePersonHistory();
+    }
+});
+
+    // Load data from local storage on page load
+    const storedOrderHistory = localStorage.getItem("orderHistory");
+    if (storedOrderHistory) {
+        orderHistory = JSON.parse(storedOrderHistory);
+        populateAwardedPersons();
+        updatePersonHistory();
+        updateOrderSummary();
+    }
+});
