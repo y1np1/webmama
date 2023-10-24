@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas</title>
+    <title>Ventas Automatizadas v1.0</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Lista de prendas</h1>
-    <div id="order-form">
-        <label for="numero-prenda">Número de Prenda:</label>
-        <input type="number" id="numero-prenda" placeholder="Ingresa el numero de prenda">
-        
-        <label for="precio">Precio:</label>
-        <input type="number" id="precio" placeholder="Ingresa el precio">
-
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" placeholder="Ingresa el nombre">
-
-        <button onclick="addOrder()">Adjudicar</button>
-        <!--<button onclick="clearHistory()">Limpiar historial</button> -->
-        <button onclick="generateTxtFile()">Generar respaldo</button>
+    <h1>Registro de Ventas by Jean Vasquez</h1>
+    <div id="sales-form">
+        <input type="text" id="garment-number" placeholder="Numero de Prenda">
+        <input type="text" id="garment-value" placeholder="Precio de Prenda">
+        <div id="person-entry">
+            <input type="text" id="new-person" placeholder="Ingresar nuevo cliente">
+            <button id="add-person-button">Agregar Cliente</button>
+        </div>
+        <select id="awarded-person-select"></select>
+        <button id="submit-button">Adjudicar</button>
+        <button id="clear-history-button">BORRAR HISTORIAL</button>
+        <button id="export-history-button">Exportar Historial Detallado</button>
+        <button id="export-totals-button">Exportar Total Por Persona</button>
+        <button id="edit-person-button">Editar Nombre</button>
 
     </div>
-
-<ul id="order-list">
-    <!-- Order items will be added here dynamically -->
-</ul>
-<!-- Add this div for total sales amount -->
-<div id="total-sales">Total: <span id="total-sales-amount">0</span></div>
-
-<!-- Agrega el botón "Borrar Prenda" aquí -->
-<button id="remove-order-button" style="display: none;">Borrar Prenda</button>
-
-<script src="script.js"></script>
+    <div id="person-history">
+        <!-- Historial de personas se generará aquí -->
+    </div>
+    <div id="order-summary">
+        <h2>Historial de clientes</h2>
+    </div>
+    <div id="item-log">
+        <h2>Registro De Prendas</h2>
+        <ul id="log-list"></ul>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
