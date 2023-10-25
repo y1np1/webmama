@@ -122,7 +122,7 @@ function createGarmentItem(garment, garmentIndex) {
             const total = orderHistory
                 .filter(item => item.awardedPerson === person)
                 .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-            totals.push(`${person} - Total: ${total}`);
+            totals.push(`${person} - Total:$ ${total}`);
         });
 
         const totalsText = totals.join('\n');
