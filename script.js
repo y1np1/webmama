@@ -105,7 +105,7 @@ function createGarmentItem(garment, garmentIndex) {
 
     // Function to export the detailed history as a TXT file
     function exportDetailedHistory() {
-        const detailedHistory = orderHistory.map(item => `${item.garmentNumber}   ${item.garmentValue}   Adjudicado por  ${item.awardedPerson}`).join('\n');
+        const detailedHistory = orderHistory.map(item => `${item.garmentNumber}   ${item.garmentValue}   Adjudicado_por:   ${item.awardedPerson}`).join('\n');
         const blob = new Blob([detailedHistory], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
