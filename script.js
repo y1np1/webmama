@@ -105,11 +105,11 @@ function createGarmentItem(garment, garmentIndex) {
 
     // Function to export the detailed history as a TXT file
 
-    function exportDetailedHistory() {
-    let txtContent = "Garment Number          Awarded Person          Garment Value\n"; // Column headers with spaces
+function exportDetailedHistory() {
+    let txtContent = "Garment Number,Awarded Person,Garment Value\n"; // Column headers with a comma delimiter
 
     orderHistory.forEach(item => {
-        txtContent += `${item.garmentNumber}          ${item.awardedPerson}          ${item.garmentValue}\n`; // Add spaces between data
+        txtContent += `${item.garmentNumber},${item.awardedPerson},${item.garmentValue}\n`; // Add a comma delimiter
     });
 
     const blob = new Blob([txtContent], { type: 'text/plain' });
@@ -120,18 +120,17 @@ function createGarmentItem(garment, garmentIndex) {
     a.click();
 }
 
-
     // Function to export totals per person as a TXT file
 
 function exportTotalsPerPerson() {
-    let txtContent = "Total          Person\n"; // Column headers with spaces
+    let txtContent = "Total,Person\n"; // Column headers with a comma delimiter
     const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
     
     uniquePersons.forEach(person => {
         const total = orderHistory
             .filter(item => item.awardedPerson === person)
             .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-        txtContent += `${total}          ${person}\n`; // Add spaces between data
+        txtContent += `${total},${person}\n`; // Add a comma delimiter
     });
 
     const blob = new Blob([txtContent], { type: 'text/plain' });
@@ -141,7 +140,6 @@ function exportTotalsPerPerson() {
     a.download = 'totals_per_person.txt';
     a.click();
 }
-
 
     // Event listener for adding persons
     addPersonButton.addEventListener("click", function () {
