@@ -104,40 +104,44 @@ function createGarmentItem(garment, garmentIndex) {
     }
 
     // Function to export the detailed history as a TXT file
-    function exportDetailedHistory() {
-        const columnHeaders = 'Garment Number,Garment Value,Awarded Person';
-        const csvData = orderHistory.map(item => [item.garmentNumber, item.garmentValue, item.awardedPerson].join(',')).join('\n');
-        const csvContent = `${columnHeaders}\n${csvData}`;
-    
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'detailed_history.csv';
-        a.click();
-    }
+function exportDetailedHistory() {
+    let txtContent = "Garment Number\tGarment Value\tAwarded Person\n"; // Column headers
+
+    orderHistory.forEach(item => {
+        txtContent += `${item.garmentNumber}\t${item.garmentValue}\t${item.awardedPerson}\n`;
+    });
+
+    const blob = new Blob([txtContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'detailed_history.txt';
+    a.click();
+}
+
     
 
     // Function to export totals per person as a TXT file
 
-    function exportTotalsPerPerson() {
-        const columnHeaders = 'Person,Total';
-        const csvData = orderHistory.map(item => {
-            const person = item.awardedPerson;
-            const total = orderHistory
-                .filter(entry => entry.awardedPerson === person)
-                .reduce((acc, entry) => acc + parseFloat(entry.garmentValue), 0);
-            return `${person},${total}`;
-        }).join('\n');
-        const csvContent = `${columnHeaders}\n${csvData}`;
+function exportTotalsPerPerson() {
+    let txtContent = "Person\tTotal\n"; // Column headers
+    const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
     
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'totals_per_person.csv';
-        a.click();
-    }
+    uniquePersons.forEach(person => {
+        const total = orderHistory
+            .filter(item => item.awardedPerson === person)
+            .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
+        txtContent += `${person}\t${total}\n`;
+    });
+
+    const blob = new Blob([txtContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'totals_per_person.txt';
+    a.click();
+}
+
     
 
     // Event listener for adding persons
