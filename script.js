@@ -105,34 +105,40 @@ function createGarmentItem(garment, garmentIndex) {
 
     // Function to export the detailed history as a TXT file
     function exportDetailedHistory() {
-        const detailedHistory = orderHistory.map(item => `${item.garmentNumber} - ${item.garmentValue} - Awarded to ${item.awardedPerson}`).join('\n');
-        const blob = new Blob([detailedHistory], { type: 'text/plain' });
+        const columnHeaders = 'Garment Number,Garment Value,Awarded Person';
+        const csvData = orderHistory.map(item => [item.garmentNumber, item.garmentValue, item.awardedPerson].join(',')).join('\n');
+        const csvContent = `${columnHeaders}\n${csvData}`;
+    
+        const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'detailed_history.txt';
+        a.download = 'detailed_history.csv';
         a.click();
     }
+    
 
     // Function to export totals per person as a TXT file
-    function exportTotalsPerPerson() {
-        const totals = [];
-        const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
-        uniquePersons.forEach(person => {
-            const total = orderHistory
-                .filter(item => item.awardedPerson === person)
-                .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-            totals.push(`${person} - Total:$ ${total}`);
-        });
 
-        const totalsText = totals.join('\n');
-        const blob = new Blob([totalsText], { type: 'text/plain' });
+    function exportTotalsPerPerson() {
+        const columnHeaders = 'Person,Total';
+        const csvData = orderHistory.map(item => {
+            const person = item.awardedPerson;
+            const total = orderHistory
+                .filter(entry => entry.awardedPerson === person)
+                .reduce((acc, entry) => acc + parseFloat(entry.garmentValue), 0);
+            return `${person},${total}`;
+        }).join('\n');
+        const csvContent = `${columnHeaders}\n${csvData}`;
+    
+        const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'totals_per_person.txt';
+        a.download = 'totals_per_person.csv';
         a.click();
     }
+    
 
     // Event listener for adding persons
     addPersonButton.addEventListener("click", function () {
