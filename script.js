@@ -105,10 +105,10 @@ function createGarmentItem(garment, garmentIndex) {
 
     // Function to export the detailed history as a TXT file
 function exportDetailedHistory() {
-    let txtContent = "Garment Number\tGarment Value\tAwarded Person\n"; // Column headers
+    let txtContent = "Garment Number          Garment Value          Awarded Person\n"; // Column headers with spaces
 
     orderHistory.forEach(item => {
-        txtContent += `${item.garmentNumber}\t${item.garmentValue}\t${item.awardedPerson}\n`;
+        txtContent += `${item.garmentNumber}          ${item.garmentValue}          ${item.awardedPerson}\n`; // Add spaces between data
     });
 
     const blob = new Blob([txtContent], { type: 'text/plain' });
@@ -119,19 +119,20 @@ function exportDetailedHistory() {
     a.click();
 }
 
+
     
 
     // Function to export totals per person as a TXT file
 
 function exportTotalsPerPerson() {
-    let txtContent = "Person\tTotal\n"; // Column headers
+    let txtContent = "Person          Total\n"; // Column headers with spaces
     const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
     
     uniquePersons.forEach(person => {
         const total = orderHistory
             .filter(item => item.awardedPerson === person)
             .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-        txtContent += `${person}\t${total}\n`;
+        txtContent += `${person}          ${total}\n`; // Add spaces between data
     });
 
     const blob = new Blob([txtContent], { type: 'text/plain' });
@@ -141,6 +142,7 @@ function exportTotalsPerPerson() {
     a.download = 'totals_per_person.txt';
     a.click();
 }
+
 
     
 
