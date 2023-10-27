@@ -116,16 +116,19 @@ function createGarmentItem(garment, garmentIndex) {
     
 
     // Function to export totals per person as a TXT file
+
     function exportTotalsPerPerson() {
-        const totals = ['Person,Total'].concat(
-            Array.from(new Set(orderHistory.map(item => item.awardedPerson)).map(person => {
-                const total = orderHistory
-                    .filter(item => item.awardedPerson === person)
-                    .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-                return `${person},${total}`;
-            })
-        ));
-        
+        const totals = ['Person,Total'];
+    
+        orderHistory.forEach(item => {
+            const person = item.awardedPerson;
+            const total = orderHistory
+                .filter(entry => entry.awardedPerson === person)
+                .reduce((acc, entry) => acc + parseFloat(entry.garmentValue), 0);
+    
+            totals.push(`${person},${total}`);
+        });
+    
         const csvData = totals.join('\n');
         const blob = new Blob([csvData], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
