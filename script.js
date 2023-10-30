@@ -106,7 +106,7 @@ function createGarmentItem(garment, garmentIndex) {
     // Function to export the detailed history as a TXT file
 
 function exportDetailedHistory() {
-    let txtContent = "Garment Number,Awarded Person,Garment Value\n"; // Column headers with a comma delimiter
+    let txtContent = "Numero de prenda,Adjudicado por,Precio de la prenda\n"; // Column headers with a comma delimiter
 
     orderHistory.forEach(item => {
         txtContent += `${item.garmentNumber},${item.awardedPerson},${item.garmentValue}\n`; // Add a comma delimiter
@@ -116,14 +116,14 @@ function exportDetailedHistory() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'detailed_history.txt';
+    a.download = 'historial_detallado.txt';
     a.click();
 }
 
     // Function to export totals per person as a TXT file
 
 function exportTotalsPerPerson() {
-    let txtContent = "Total,Person\n"; // Column headers with a comma delimiter
+    let txtContent = "Total,Persona\n"; // Column headers with a comma delimiter
     const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
     
     uniquePersons.forEach(person => {
@@ -137,7 +137,7 @@ function exportTotalsPerPerson() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'totals_per_person.txt';
+    a.download = 'total_por_persona.txt';
     a.click();
 }
 
@@ -185,7 +185,7 @@ function exportTotalsPerPerson() {
     // Event listener for clearing the history (with local storage)
     clearHistoryButton.addEventListener("click", function () {
         // Show a confirmation dialog
-        const confirmDelete = confirm("Estas seguro que quieres eliminar el historial?");
+        const confirmDelete = confirm("Borrar?");
         
         if (confirmDelete) {
             logList.innerHTML = "";
@@ -201,7 +201,7 @@ function exportTotalsPerPerson() {
 const editPersonButton = document.getElementById("edit-person-button");
 editPersonButton.addEventListener("click", function () {
     const selectedPerson = awardedPersonSelect.value; // Get the selected person
-    const newPersonName = prompt("Ingresa el nuevo nombre para esta persona:"); // Show a prompt to enter the new name
+    const newPersonName = prompt("Cual es el nombre correcto?:"); // Show a prompt to enter the new name
 
     if (newPersonName) {
         // Update the name in the data structure (orderHistory)
