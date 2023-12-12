@@ -75,6 +75,7 @@ h1, h2 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-top: 15px; /* Aumentar el espaciado superior */
 }
 
 #sales-form button:hover {
