@@ -6,119 +6,113 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #3b3b3b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Contenedor principal para centrar y dar espacio */
+.container {
+    max-width: 1100px;
+    margin: auto;
+    overflow: auto;
+    padding: 0 20px;
+}
+
+h1, h2 {
+    color: #333;
     text-align: center;
-    padding: 20px;
 }
 
-h1 {
-    color: #e4e4e4;
+/* Responsive Design: Media Queries */
+@media (max-width: 700px) {
+    #sales-form, #order-summary, #item-log {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    #sales-form input[type="text"], #awarded-person-select {
+        width: 100%;
+    }
+
+    #person-entry input[type="text"] {
+        width: calc(100% - 20px); /* Adjusting for padding */
+    }
+
+    #person-entry button {
+        width: 100%;
+        margin-top: 10px;
+    }
 }
 
-#sales-form {
+/* Improved UI styles */
+#sales-form, #order-summary, #item-log {
     background-color: #fff;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     padding: 20px;
-    margin: 20px auto;
-    max-width: 400px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-#sales-form input[type="text"] {
+#sales-form input[type="text"], #awarded-person-select {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 #sales-form button {
-    background-color: #007BFF;
-    color: #fff;
+    display: block;
+    width: 100%;
+    padding: 10px;
     border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    border-radius: 3px;
+    background-color: #5cb85c;
+    color: white;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 #sales-form button:hover {
-    background-color: #0056b3;
+    background-color: #4cae4c;
 }
 
-/* Estilo específico para el botón de borrar historial */
+/* Estilos específicos para botones */
 #clear-history-button {
-    background-color: #ff0000;
-    color: #ee0505;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    background-color: #d9534f;
 }
 
-#clear-history-button:hover {
-    background-color: #cc0000;
+#export-history-button, #export-totals-button, #edit-person-button {
+    background-color: #f0ad4e;
 }
 
-#order-summary, #item-log {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 400px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+#person-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-h2 {
-    color: #333;
+#person-entry input[type="text"] {
+    flex: 1;
+    margin-right: 10px;
+}
+
+#person-entry button {
+    flex-basis: 35%;
 }
 
 ul {
     list-style-type: none;
+    padding: 0;
 }
 
-
-/* Estilo para el contenedor de entrada de persona */
-#person-entry {
-    margin-top: 5px; /* Ajusta el margen superior según tus preferencias */
-}
-
-#person-entry input[type="text"] {
-    width: 70%; /* Ancho del campo de entrada */
+li {
+    background: #eee;
+    margin: 5px 0;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+    border-radius: 5px;
 }
-
-#person-entry button {
-    background-color: #0026ff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#person-entry button:hover {
-    background-color: #0056b3;
-}
-
-/* Estilo para el campo de selección de personas premiadas */
-#awarded-person-select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
-/* Otros estilos para tu página */
-/* ... */
-
