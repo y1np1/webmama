@@ -11,10 +11,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const logList = document.getElementById("log-list");
     const exportHistoryButton = document.getElementById("export-history-button");
     const exportTotalsButton = document.getElementById("export-totals-button");
+    const editPersonButton = document.getElementById("edit-person-button");
 
     // Sales history arrays with local storage
     let orderHistory = JSON.parse(localStorage.getItem("orderHistory")) || [];
     const itemLog = [];
+
+    // Function to validate form input
+    function validateInput() {
+        if (!garmentNumberInput.value.trim() || !garmentValueInput.value.trim() || isNaN(garmentValueInput.value)) {
+            alert('Please enter valid garment number and value.');
+            return false;
+        }
+        return true;
+    }
 
     // Function to populate the select element with awarded persons
     function populateAwardedPersons() {
@@ -74,25 +84,25 @@ document.addEventListener("DOMContentLoaded", function () {
         garmentItem.appendChild(deleteButton);
     }
 
-// Function to create a garment item and add hover effect
-function createGarmentItem(garment, garmentIndex) {
-    const garmentItem = document.createElement("li");
-    garmentItem.textContent = `Prenda ${garment.garmentNumber} - $${garment.garmentValue} - Adjudicada Por: ${garment.awardedPerson}`;
-    garmentItem.className = "garment-item";
+    // Function to create a garment item and add hover effect
+    function createGarmentItem(garment, garmentIndex) {
+        const garmentItem = document.createElement("li");
+        garmentItem.textContent = `Prenda ${garment.garmentNumber} - $${garment.garmentValue} - Adjudicada Por: ${garment.awardedPerson}`;
+        garmentItem.className = "garment-item";
 
-    garmentItem.addEventListener("mouseenter", function () {
-        addDeleteButton(garmentItem, garmentIndex);
-    });
+        garmentItem.addEventListener("mouseenter", function () {
+            addDeleteButton(garmentItem, garmentIndex);
+        });
 
-    garmentItem.addEventListener("mouseleave", function () {
-        const deleteButton = garmentItem.querySelector(".delete-button");
-        if (deleteButton) {
-            deleteButton.remove();
-        }
-    });
+        garmentItem.addEventListener("mouseleave", function () {
+            const deleteButton = garmentItem.querySelector(".delete-button");
+            if (deleteButton) {
+                deleteButton.remove();
+            }
+        });
 
-    return garmentItem;
-}
+        return garmentItem;
+    }
 
     // Update the order summary with hover effect
     function updateOrderSummary() {
@@ -104,42 +114,40 @@ function createGarmentItem(garment, garmentIndex) {
     }
 
     // Function to export the detailed history as a TXT file
+    function exportDetailedHistory() {
+        let txtContent = "Numero de prenda,Adjudicado por,Precio de la prenda\\n"; // Column headers with a comma delimiter
 
-function exportDetailedHistory() {
-    let txtContent = "Numero de prenda,Adjudicado por,Precio de la prenda\n"; // Column headers with a comma delimiter
+        orderHistory.forEach(item => {
+            txtContent += `${item.garmentNumber},${item.awardedPerson},${item.garmentValue}\\n`; // Add a comma delimiter
+        });
 
-    orderHistory.forEach(item => {
-        txtContent += `${item.garmentNumber},${item.awardedPerson},${item.garmentValue}\n`; // Add a comma delimiter
-    });
-
-    const blob = new Blob([txtContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'historial_detallado.txt';
-    a.click();
-}
+        const blob = new Blob([txtContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'historial_detallado.txt';
+        a.click();
+    }
 
     // Function to export totals per person as a TXT file
+    function exportTotalsPerPerson() {
+        let txtContent = "Total,Persona\\n"; // Column headers with a comma delimiter
+        const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
+        
+        uniquePersons.forEach(person => {
+            const total = orderHistory
+                .filter(item => item.awardedPerson === person)
+                .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
+            txtContent += `${total},${person}\\n`; // Add a comma delimiter
+        });
 
-function exportTotalsPerPerson() {
-    let txtContent = "Total,Persona\n"; // Column headers with a comma delimiter
-    const uniquePersons = Array.from(new Set(orderHistory.map(item => item.awardedPerson)));
-    
-    uniquePersons.forEach(person => {
-        const total = orderHistory
-            .filter(item => item.awardedPerson === person)
-            .reduce((acc, item) => acc + parseFloat(item.garmentValue), 0);
-        txtContent += `${total},${person}\n`; // Add a comma delimiter
-    });
-
-    const blob = new Blob([txtContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'total_por_persona.txt';
-    a.click();
-}
+        const blob = new Blob([txtContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'total_por_persona.txt';
+        a.click();
+    }
 
     // Event listener for adding persons
     addPersonButton.addEventListener("click", function () {
@@ -158,27 +166,22 @@ function exportTotalsPerPerson() {
 
     // Event listener for submitting a sale
     submitButton.addEventListener("click", function () {
-        const garmentNumber = garmentNumberInput.value;
-        const garmentValue = garmentValueInput.value;
-        const awardedPerson = awardedPersonSelect.value;
+        if (validateInput()) {
+            const garmentNumber = garmentNumberInput.value;
+            const garmentValue = garmentValueInput.value;
+            const awardedPerson = awardedPersonSelect.value;
 
-        if (garmentNumber && garmentValue && awardedPerson) {
             orderHistory.push({ garmentNumber, garmentValue, awardedPerson });
             
             // Update local storage
             localStorage.setItem("orderHistory", JSON.stringify(orderHistory));
 
-            const orderSummaryItem = document.createElement("li");
-            orderSummaryItem.textContent = `Garment ${garmentNumber} - $${garmentValue} - Awarded to ${awardedPerson}`;
-            logList.appendChild(orderSummaryItem);
+            updatePersonHistory();
+            populateAwardedPersons();
+            updateOrderSummary();
 
             garmentNumberInput.value = "";
             garmentValueInput.value = "";
-            populateAwardedPersons();
-            updatePersonHistory();
-            updateOrderSummary();
-        } else {
-            alert("Please fill in all fields.");
         }
     });
 
@@ -197,30 +200,26 @@ function exportTotalsPerPerson() {
         }
     });
 
-    // Find and add an event listener for the "Edit Person" button
-const editPersonButton = document.getElementById("edit-person-button");
-editPersonButton.addEventListener("click", function () {
-    const selectedPerson = awardedPersonSelect.value; // Get the selected person
-    const newPersonName = prompt("Cual es el nombre correcto?:"); // Show a prompt to enter the new name
+    // Event listener for editing a person's name
+    editPersonButton.addEventListener("click", function () {
+        const selectedPerson = awardedPersonSelect.value;
+        const newPersonName = prompt("Cual es el nombre correcto?:");
 
-    if (newPersonName) {
-        // Update the name in the data structure (orderHistory)
-        orderHistory.forEach(item => {
-            if (item.awardedPerson === selectedPerson) {
-                item.awardedPerson = newPersonName;
-            }
-        });
+        if (newPersonName) {
+            orderHistory.forEach(item => {
+                if (item.awardedPerson === selectedPerson) {
+                    item.awardedPerson = newPersonName;
+                }
+            });
 
-        // Update the UI to reflect the new name
-        populateAwardedPersons();
-        updatePersonHistory();
-    }
-});
+            populateAwardedPersons();
+            updatePersonHistory();
+        }
+    });
 
     // Load data from local storage on page load
-    const storedOrderHistory = localStorage.getItem("orderHistory");
-    if (storedOrderHistory) {
-        orderHistory = JSON.parse(storedOrderHistory);
+    if (localStorage.getItem("orderHistory")) {
+        orderHistory = JSON.parse(localStorage.getItem("orderHistory"));
         populateAwardedPersons();
         updatePersonHistory();
         updateOrderSummary();
