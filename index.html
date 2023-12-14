@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Ventas en Vivo</title>
     <style>
-body {
+    body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -53,11 +53,25 @@ button:hover {
 .nav-buttons button {
     font-size: 18px;
     padding: 12px 20px;
-    margin: 0 10px 15px 10px; /* Margen inferior agregado */
+    margin: 0 10px 15px 10px;
     min-width: 120px;
     display: inline-block;
-    font-family: 'Arial', sans-serif; /* Cambia la fuente si lo deseas */
-    font-weight: bold; /* Fuente en negrita */
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+#borrarHistorial {
+    background-color: #ff4444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#borrarHistorial:hover {
+    background-color: #cc0000;
 }
 
 table {
@@ -98,7 +112,7 @@ th, td {
     .nav-buttons button {
         font-size: 16px;
         padding: 10px 15px;
-        margin: 0 5px 15px 5px; /* Margen inferior agregado */
+        margin: 0 5px 15px 5px;
     }
 
     .seccion, #gestionEstados {
@@ -114,12 +128,13 @@ th, td {
     </style>
 </head>
 <body>
-    <h1>Ventas V3.5</h1>
+    <h1>Gestión de Ventas en Vivo</h1>
 
     <!-- Pestañas de Navegación -->
     <div class="nav-buttons">
         <button onclick="mostrarSeccion('gestionPedidos')">Gestión de Pedidos</button>
         <button onclick="mostrarSeccion('gestionEstados')">Gestión de Estados</button>
+        <button id="borrarHistorial" onclick="confirmarYBorrarHistorial()">Borrar Historial</button>
     </div>
 
     <!-- Sección de Gestión de Pedidos -->
@@ -131,7 +146,7 @@ th, td {
             <select id="nombreCliente">
                 <!-- Las opciones de nombres de clientas se añadirán aquí -->
             </select>
-            <input type="number" id="precio" placeholder="Precio">
+            <input type="number" id="precio" placeholder="Precio" min="1000">
             <button onclick="agregarPedido()">Agregar Pedido</button>
         </section>
 
@@ -151,10 +166,13 @@ th, td {
         </section>
 
         <!-- Exportar datos -->
+        <!-- Dentro de la sección de Exportar datos -->
         <section>
-            <button onclick="exportarResumenClientes()">Exportar Resumen de Clientes</button>
-            <button onclick="exportarDetallesPedidos()">Exportar Detalles de Pedidos</button>
+        <button onclick="exportarResumenClientes()">Exportar Resumen de Clientes</button>
+        <button onclick="exportarDetallesPedidos()">Exportar Detalles de Pedidos</button>
+        <button onclick="exportarGestionEstados()">Exportar Gestión de Estados</button>
         </section>
+
     </div>
 
     <!-- Sección de Gestión de Estados -->
@@ -168,7 +186,7 @@ th, td {
     </div>
 
     <script>
-var pedidos = [];
+    var pedidos = [];
 var totalVentas = 0;
 
 function mostrarSeccion(seccionId) {
@@ -185,13 +203,21 @@ function agregarPedido() {
     var precio = document.getElementById('precio').value;
     if (validarPrecio(precio)) {
         precio = parseInt(precio, 10);
-        var pedido = { codigo: codigo, cliente: cliente, precio: precio, totalEnviado: false, pagado: false };
+        var pedido = { codigo: codigo, cliente: cliente, precio: precio, totalEnviado: false, pagado: false, tipoEntrega: '' };
         pedidos.push(pedido);
         actualizarTotalVentas();
         actualizarTablaPedidos();
         guardarPedidosEnLocalStorage();
         limpiarCampos();
     }
+}
+
+function validarPrecio(precio) {
+    if (precio.length < 4) {
+        alert('El precio debe tener al menos 4 dígitos.');
+        return false;
+    }
+    return true;
 }
 
 function limpiarCampos() {
@@ -210,16 +236,6 @@ function agregarNombreALista(nombre) {
         lista.add(opcion);
     }
 }
-
-function validarPrecio(precio) {
-    if (precio.length < 4) {
-        alert('El precio debe tener al menos 4 dígitos.');
-        return false;
-    }
-    return true;
-}
-
-window.onload = cargarPedidosDeLocalStorage;
 function actualizarTablaPedidos() {
     var tabla = document.getElementById('tablaPedidos');
     tabla.innerHTML = '<tr><th>Código</th><th>Cliente</th><th>Precio</th><th>Eliminar</th></tr>';
@@ -260,6 +276,19 @@ function eliminarPedido(index) {
     guardarPedidosEnLocalStorage();
     actualizarTablaPedidos();
 }
+
+function confirmarYBorrarHistorial() {
+    var confirmacion = confirm("¿Estás seguro de que quieres borrar todo el historial de ventas? Esta acción no se puede deshacer.");
+    if (confirmacion) {
+        pedidos = [];
+        totalVentas = 0;
+        actualizarTablaPedidos();
+        actualizarResumenClientesEstados();
+        actualizarTotalVentas();
+        localStorage.removeItem('pedidos');
+        alert("Historial de ventas borrado.");
+    }
+}
 function agregarNuevoNombreCliente() {
     var nombreCliente = document.getElementById('nuevoNombreCliente').value.trim();
     if (nombreCliente) {
@@ -277,24 +306,35 @@ function actualizarResumenClientesEstados() {
 
     pedidos.forEach(function(pedido) {
         if (!clientes[pedido.cliente]) {
-            clientes[pedido.cliente] = { total: 0, totalEnviado: [], pagado: [] };
+            clientes[pedido.cliente] = { total: 0, totalEnviado: [], pagado: [], tipoEntrega: '' };
         }
         clientes[pedido.cliente].total += pedido.precio;
         clientes[pedido.cliente].totalEnviado.push(pedido.totalEnviado);
         clientes[pedido.cliente].pagado.push(pedido.pagado);
+        if (!clientes[pedido.cliente].tipoEntrega) {
+            clientes[pedido.cliente].tipoEntrega = pedido.tipoEntrega;
+        }
     });
 
     for (var cliente in clientes) {
         var div = document.createElement('div');
         div.className = 'cliente-estado';
+        var tipoEntregaSeleccionado = clientes[cliente].tipoEntrega;
+        
         div.innerHTML = `
             <span>${cliente}: $${clientes[cliente].total}</span>
             <label><input type="checkbox" onchange="toggleEstado('${cliente}', 'totalEnviado')" ${clientes[cliente].totalEnviado.every(Boolean) ? 'checked' : ''}> Total Enviado</label>
             <label><input type="checkbox" onchange="toggleEstado('${cliente}', 'pagado')" ${clientes[cliente].pagado.every(Boolean) ? 'checked' : ''}> Pagado</label>
+            <select onchange="cambiarTipoEntrega('${cliente}', this.value)">
+                <option value="" ${tipoEntregaSeleccionado === '' ? 'selected' : ''}>Seleccionar Entrega</option>
+                <option value="delivery" ${tipoEntregaSeleccionado === 'delivery' ? 'selected' : ''}>Delivery Presencial</option>
+                <option value="envio" ${tipoEntregaSeleccionado === 'envio' ? 'selected' : ''}>Envío por Agencia</option>
+            </select>
         `;
         resumen.appendChild(div);
     }
 }
+
 
 function toggleEstado(cliente, estado) {
     pedidos.forEach(function(pedido) {
@@ -303,10 +343,19 @@ function toggleEstado(cliente, estado) {
         }
     });
     guardarPedidosEnLocalStorage();
+}
+
+function cambiarTipoEntrega(cliente, tipo) {
+    pedidos = pedidos.map(pedido => {
+        if (pedido.cliente === cliente) {
+            return {...pedido, tipoEntrega: tipo};
+        }
+        return pedido;
+    });
+    guardarPedidosEnLocalStorage();
     actualizarResumenClientesEstados();
 }
 
-// ... (Las funciones anteriores se mantienen sin cambios)
 
 function exportarResumenClientes() {
     var resumen = {};
@@ -325,12 +374,36 @@ function exportarResumenClientes() {
 }
 
 function exportarDetallesPedidos() {
-    var contenido = 'Cliente, Código Prenda, Precio\n';
+    var contenido = 'Cliente, Código Prenda, Precio, Tipo Entrega\n';
     pedidos.forEach(function(pedido) {
-        contenido += pedido.cliente + ', ' + pedido.codigo + ', ' + pedido.precio + '\n';
+        contenido += pedido.cliente + ', ' + pedido.codigo + ', ' + pedido.precio + ', ' + (pedido.tipoEntrega || 'N/A') + '\n';
     });
     descargarArchivo(contenido, 'detalles_pedidos.txt');
 }
+function exportarGestionEstados() {
+    var contenido = 'Cliente, Total, Pagado, Tipo Entrega\n';
+    var resumenClientes = {};
+
+    // Agrupar la información por cliente
+    pedidos.forEach(function(pedido) {
+        if (!resumenClientes[pedido.cliente]) {
+            resumenClientes[pedido.cliente] = { total: 0, pagado: [], tipoEntrega: '' };
+        }
+        resumenClientes[pedido.cliente].total += pedido.precio;
+        resumenClientes[pedido.cliente].pagado.push(pedido.pagado);
+        resumenClientes[pedido.cliente].tipoEntrega = pedido.tipoEntrega;
+    });
+
+    // Compilar la información para la exportación
+    for (var cliente in resumenClientes) {
+        var clienteInfo = resumenClientes[cliente];
+        contenido += cliente + ', ' + clienteInfo.total + ', ' + (clienteInfo.pagado.every(Boolean) ? 'Sí' : 'No') + ', ' + (clienteInfo.tipoEntrega || 'N/A') + '\n';
+    }
+
+    descargarArchivo(contenido, 'gestion_estados.txt');
+}
+
+
 
 function descargarArchivo(contenido, nombreArchivo) {
     var elemento = document.createElement('a');
@@ -345,7 +418,7 @@ function descargarArchivo(contenido, nombreArchivo) {
     document.body.removeChild(elemento);
 }
 
-// ... (Las funciones anteriores se mantienen sin cambios)
+window.onload = cargarPedidosDeLocalStorage;
 
     </script>
 </body>
