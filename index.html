@@ -128,12 +128,12 @@ th, td {
     </style>
 </head>
 <body>
-    <h1>Gestión de Ventas en Vivo</h1>
+    <h1>Gestion de ventas</h1>
 
     <!-- Pestañas de Navegación -->
     <div class="nav-buttons">
-        <button onclick="mostrarSeccion('gestionPedidos')">Gestión de Pedidos</button>
-        <button onclick="mostrarSeccion('gestionEstados')">Gestión de Estados</button>
+        <button onclick="mostrarSeccion('gestionPedidos')">Gestión de Adjudicaciones</button>
+        <button onclick="mostrarSeccion('gestionEstados')">Gestión de Totales</button>
         <button id="borrarHistorial" onclick="confirmarYBorrarHistorial()">Borrar Historial</button>
     </div>
 
@@ -147,7 +147,7 @@ th, td {
                 <!-- Las opciones de nombres de clientas se añadirán aquí -->
             </select>
             <input type="number" id="precio" placeholder="Precio" min="1000">
-            <button onclick="agregarPedido()">Agregar Pedido</button>
+            <button onclick="agregarPedido()">Adjudicar</button>
         </section>
 
         <!-- Formulario para añadir nuevos nombres de clientes -->
@@ -170,7 +170,7 @@ th, td {
         <section>
         <button onclick="exportarResumenClientes()">Exportar Resumen de Clientes</button>
         <button onclick="exportarDetallesPedidos()">Exportar Detalles de Pedidos</button>
-        <button onclick="exportarGestionEstados()">Exportar Gestión de Estados</button>
+        <button onclick="exportarGestionEstados()">Exportar Gestión de Totales</button>
         </section>
 
     </div>
@@ -228,14 +228,25 @@ function limpiarCampos() {
 
 function agregarNombreALista(nombre) {
     var lista = document.getElementById('nombreCliente');
-    var existe = Array.from(lista.options).some(option => option.value === nombre);
-    if (!existe) {
-        var opcion = document.createElement('option');
-        opcion.value = nombre;
-        opcion.text = nombre;
-        lista.add(opcion);
-    }
+    var opcion = document.createElement('option');
+    opcion.value = nombre;
+    opcion.text = nombre;
+
+    var opcionesExistentes = Array.from(lista.options);
+    opcionesExistentes.push(opcion);
+
+    // Ordenar alfabéticamente las opciones
+    opcionesExistentes.sort(function(a, b) {
+        return a.text.localeCompare(b.text);
+    });
+
+    // Limpiar la lista actual y añadir las opciones ordenadas
+    lista.innerHTML = '';
+    opcionesExistentes.forEach(function(opc) {
+        lista.add(opc);
+    });
 }
+
 function actualizarTablaPedidos() {
     var tabla = document.getElementById('tablaPedidos');
     tabla.innerHTML = '<tr><th>Código</th><th>Cliente</th><th>Precio</th><th>Eliminar</th></tr>';
@@ -285,10 +296,17 @@ function confirmarYBorrarHistorial() {
         actualizarTablaPedidos();
         actualizarResumenClientesEstados();
         actualizarTotalVentas();
+        limpiarListaClientes();
         localStorage.removeItem('pedidos');
         alert("Historial de ventas borrado.");
     }
 }
+
+function limpiarListaClientes() {
+    var listaClientes = document.getElementById('nombreCliente');
+    listaClientes.innerHTML = '';
+}
+
 function agregarNuevoNombreCliente() {
     var nombreCliente = document.getElementById('nuevoNombreCliente').value.trim();
     if (nombreCliente) {
