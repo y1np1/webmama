@@ -201,6 +201,13 @@ function agregarPedido() {
     var codigo = document.getElementById('codigoPrenda').value;
     var cliente = document.getElementById('nombreCliente').value;
     var precio = document.getElementById('precio').value;
+
+    // Verificar si se ha seleccionado un nombre de cliente
+    if (!cliente) {
+        alert('Por favor, selecciona un cliente.');
+        return; // Detener la función si no se ha seleccionado un cliente
+    }
+
     if (validarPrecio(precio)) {
         precio = parseInt(precio, 10);
         var pedido = { codigo: codigo, cliente: cliente, precio: precio, totalEnviado: false, pagado: false, tipoEntrega: '' };
@@ -211,6 +218,7 @@ function agregarPedido() {
         limpiarCampos();
     }
 }
+
 
 function validarPrecio(precio) {
     if (precio.length < 4) {
