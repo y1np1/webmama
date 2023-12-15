@@ -280,6 +280,7 @@ function cargarPedidosDeLocalStorage() {
     var pedidosGuardados = localStorage.getItem('pedidos');
     if (pedidosGuardados) {
         pedidos = JSON.parse(pedidosGuardados);
+        limpiarListaClientes(); // Asegúrate de limpiar la lista antes de repoblarla.
         pedidos.forEach(function(pedido) {
             agregarNombreALista(pedido.cliente);
         });
@@ -288,6 +289,7 @@ function cargarPedidosDeLocalStorage() {
         actualizarResumenClientesEstados();
     }
 }
+
 
 function eliminarPedido(index) {
     pedidos.splice(index, 1);
