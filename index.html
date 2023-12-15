@@ -257,13 +257,21 @@ function agregarNombreALista(nombre) {
 
 function actualizarTablaPedidos() {
     var tabla = document.getElementById('tablaPedidos');
-    tabla.innerHTML = '<tr><th>Código</th><th>Cliente</th><th>Precio</th><th>Eliminar</th></tr>';
-    pedidos.forEach(function(pedido, index) {
-        var fila = '<tr><td>' + pedido.codigo + '</td><td>' + pedido.cliente + '</td><td>' + pedido.precio + '</td>';
-        fila += '<td><button onclick="eliminarPedido(' + index + ')">Eliminar</button></td></tr>';
-        tabla.innerHTML += fila;
+    // Asegurarse de mantener los encabezados de la tabla
+    var encabezados = '<tr><th>Código</th><th>Cliente</th><th>Precio</th><th>Eliminar</th></tr>';
+    tabla.innerHTML = encabezados;
+
+    // Invertir el arreglo de pedidos para que el más reciente aparezca primero
+    var pedidosInvertidos = pedidos.slice().reverse();
+
+    pedidosInvertidos.forEach(function(pedido, index) {
+        var fila = document.createElement('tr');
+        fila.innerHTML = '<td>' + pedido.codigo + '</td><td>' + pedido.cliente + '</td><td>' + pedido.precio + '</td>';
+        fila.innerHTML += '<td><button onclick="eliminarPedido(' + (pedidos.length - 1 - index) + ')">Eliminar</button></td>';
+        tabla.appendChild(fila); // Usa appendChild en lugar de innerHTML para agregar al principio
     });
 }
+
 
 function actualizarTotalVentas() {
     totalVentas = pedidos.reduce((total, pedido) => total + pedido.precio, 0);
