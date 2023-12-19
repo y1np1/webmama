@@ -199,16 +199,15 @@ function mostrarSeccion(seccionId) {
 
 function agregarPedido() {
     var codigo = document.getElementById('codigoPrenda').value;
-    var cliente = document.getElementById('nombreCliente').value;
     var precio = document.getElementById('precio').value;
+    var cliente = clienteTemporal || document.getElementById('nombreCliente').value;
 
-    // Verificar si se ha seleccionado un nombre de cliente
     if (!cliente) {
-        alert('Por favor, selecciona un cliente.');
-        return; // Detener la función si no se ha seleccionado un cliente
+        alert('Por favor, adjudica un pedido a un cliente.');
+        return;
     }
 
-    if (validarPrecio(precio)) {
+    if (validarPrecio(precio) && codigo) {
         precio = parseInt(precio, 10);
         var pedido = { codigo: codigo, cliente: cliente, precio: precio, totalEnviado: false, pagado: false, tipoEntrega: '' };
         pedidos.push(pedido);
@@ -216,8 +215,14 @@ function agregarPedido() {
         actualizarTablaPedidos();
         guardarPedidosEnLocalStorage();
         limpiarCampos();
+        
+        if (clienteTemporal) {
+            agregarNombreALista(clienteTemporal);
+            clienteTemporal = null;
+        }
     }
 }
+
 
 
 function validarPrecio(precio) {
@@ -288,14 +293,12 @@ function cargarPedidosDeLocalStorage() {
     var pedidosGuardados = localStorage.getItem('pedidos');
     if (pedidosGuardados) {
         pedidos = JSON.parse(pedidosGuardados);
-        limpiarListaClientes(); // Limpiar la lista antes de repoblarla
-        var nombresClientes = new Set(); // Utilizamos un conjunto para almacenar nombres únicos
+        limpiarListaClientes();
+        var clientesUnicos = new Set();
         pedidos.forEach(function(pedido) {
-            nombresClientes.add(pedido.cliente);
+            clientesUnicos.add(pedido.cliente);
         });
-        nombresClientes.forEach(function(cliente) {
-            agregarNombreALista(cliente);
-        });
+        clientesUnicos.forEach(agregarNombreALista);
         actualizarTotalVentas();
         actualizarTablaPedidos();
         actualizarResumenClientesEstados();
@@ -334,11 +337,14 @@ function limpiarListaClientes() {
     listaClientes.innerHTML = '';
 }
 
+var clienteTemporal = null;
+
 function agregarNuevoNombreCliente() {
     var nombreCliente = document.getElementById('nuevoNombreCliente').value.trim();
     if (nombreCliente) {
-        agregarNombreALista(nombreCliente);
+        clienteTemporal = nombreCliente;
         document.getElementById('nuevoNombreCliente').value = '';
+        alert("Cliente " + clienteTemporal + " listo para adjudicar pedido.");
     } else {
         alert('Por favor, introduce un nombre válido.');
     }
