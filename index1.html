@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Ventas en Vivo</title>
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #444;
+    text-align: center;
+}
+
+.seccion {
+    margin: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+}
+
+input, select, button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4cae4c;
+}
+
+.nav-buttons {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nav-buttons button {
+    font-size: 18px;
+    padding: 12px 20px;
+    margin: 0 10px 15px 10px;
+    min-width: 120px;
+    display: inline-block;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+#borrarHistorial {
+    background-color: #ff4444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#borrarHistorial:hover {
+    background-color: #cc0000;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+#gestionEstados {
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.cliente-estado {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 95%;
+}
+
+@media (max-width: 600px) {
+    .nav-buttons button {
+        font-size: 16px;
+        padding: 10px 15px;
+        margin: 0 5px 15px 5px;
+    }
+
+    .seccion, #gestionEstados {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .cliente-estado {
+        max-width: 95%;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <h1>Gestion de ventas</h1>
+
+    <!-- Pestañas de Navegación -->
+    <div class="nav-buttons">
+        <button onclick="mostrarSeccion('gestionPedidos')">Gestión de Adjudicaciones</button>
+        <button onclick="mostrarSeccion('gestionEstados')">Gestión de Totales</button>
+        <button id="borrarHistorial" onclick="confirmarYBorrarHistorial()">Borrar Historial</button>
+    </div>
+
+    <!-- Sección de Gestión de Pedidos -->
+    <div id="gestionPedidos" class="seccion">
+        <!-- Formulario para ingresar pedidos -->
+        <section>
+            <h2>Ingresar Pedido</h2>
+            <input type="number" id="codigoPrenda" placeholder="Código de Prenda">
+            <select id="nombreCliente">
+                <!-- Las opciones de nombres de clientas se añadirán aquí -->
+            </select>
+            <input type="number" id="precio" placeholder="Precio" min="1000">
+            <button onclick="agregarPedido()">Adjudicar</button>
+        </section>
+
+        <!-- Formulario para añadir nuevos nombres de clientes -->
+        <section>
+            <h2>Añadir Nuevo Cliente</h2>
+            <input type="text" id="nuevoNombreCliente" placeholder="Nombre del Cliente">
+            <button onclick="agregarNuevoNombreCliente()">Añadir Cliente</button>
+        </section>
+
+        <!-- Tabla para mostrar los pedidos -->
+        <section>
+            <h2>Pedidos</h2>
+            <table id="tablaPedidos">
+                <!-- Aquí se mostrarán los pedidos -->
+            </table>
+        </section>
+
+        <!-- Exportar datos -->
+        <!-- Dentro de la sección de Exportar datos -->
+        <section>
+        <button onclick="exportarResumenClientes()">Exportar Resumen de Clientes</button>
+        <button onclick="exportarDetallesPedidos()">Exportar Detalles de Pedidos</button>
+        <button onclick="exportarGestionEstados()">Exportar Gestión de Totales</button>
+        </section>
+
+    </div>
+
+    <!-- Sección de Gestión de Estados -->
+    <div id="gestionEstados" class="seccion" style="display:none;">
+        <h2>Resumen de Ventas y Estados</h2>
+        <div id="totalVentas">Total de Ventas: $0</div>
+        <h3>Clientes</h3>
+        <div id="listaClientesEstados">
+            <!-- Aquí se mostrarán los clientes, sus totales y estados -->
+        </div>
+    </div>
+
+    <script>
+    var pedidos = [];
+var totalVentas = 0;
+
+function mostrarSeccion(seccionId) {
+    var secciones = document.getElementsByClassName('seccion');
+    for (var i = 0; i < secciones.length; i++) {
+        secciones[i].style.display = 'none';
+    }
+    document.getElementById(seccionId).style.display = 'block';
+}
+
+function agregarPedido() {
+    var codigo = document.getElementById('codigoPrenda').value;
+    var cliente = document.getElementById('nombreCliente').value;
+    var precio = document.getElementById('precio').value;
+
+    // Verificar si se ha seleccionado un nombre de cliente
+    if (!cliente) {
+        alert('Por favor, selecciona un cliente.');
+        return; // Detener la función si no se ha seleccionado un cliente
+    }
+
+    if (validarPrecio(precio)) {
+        precio = parseInt(precio, 10);
+        var pedido = { codigo: codigo, cliente: cliente, precio: precio, totalEnviado: false, pagado: false, tipoEntrega: '' };
+        pedidos.push(pedido);
+        actualizarTotalVentas();
+        actualizarTablaPedidos();
+        guardarPedidosEnLocalStorage();
+        limpiarCampos();
+    }
+}
+
+
+function validarPrecio(precio) {
+    if (precio.length < 4) {
+        alert('El precio debe tener al menos 4 dígitos.');
+        return false;
+    }
+    return true;
+}
+
+function limpiarCampos() {
+    document.getElementById('codigoPrenda').value = '';
+    document.getElementById('nombreCliente').selectedIndex = 0;
+    document.getElementById('precio').value = '';
+}
+
+function agregarNombreALista(nombre) {
+    var lista = document.getElementById('nombreCliente');
+    var existe = Array.from(lista.options).some(option => option.value === nombre);
+    if (!existe) {
+        var opcion = document.createElement('option');
+        opcion.value = nombre;
+        opcion.text = nombre;
+        lista.appendChild(opcion);
+    }
+    // Ordenar alfabéticamente las opciones
+    opcionesExistentes.sort(function(a, b) {
+        return a.text.localeCompare(b.text);
+    });
+
+    // Limpiar la lista actual y añadir las opciones ordenadas
+    lista.innerHTML = '';
+    opcionesExistentes.forEach(function(opc) {
+        lista.add(opc);
+    });
+}
+
+function actualizarTablaPedidos() {
+    var tabla = document.getElementById('tablaPedidos');
+    // Asegurarse de mantener los encabezados de la tabla
+    var encabezados = '<tr><th>Código</th><th>Cliente</th><th>Precio</th><th>Eliminar</th></tr>';
+    tabla.innerHTML = encabezados;
+
+    // Invertir el arreglo de pedidos para que el más reciente aparezca primero
+    var pedidosInvertidos = pedidos.slice().reverse();
+
+    pedidosInvertidos.forEach(function(pedido, index) {
+        var fila = document.createElement('tr');
+        fila.innerHTML = '<td>' + pedido.codigo + '</td><td>' + pedido.cliente + '</td><td>' + pedido.precio + '</td>';
+        fila.innerHTML += '<td><button onclick="eliminarPedido(' + (pedidos.length - 1 - index) + ')">Eliminar</button></td>';
+        tabla.appendChild(fila); // Usa appendChild en lugar de innerHTML para agregar al principio
+    });
+}
+
+
+function actualizarTotalVentas() {
+    totalVentas = pedidos.reduce((total, pedido) => total + pedido.precio, 0);
+    var totalVentasDiv = document.getElementById('totalVentas');
+    totalVentasDiv.textContent = 'Total de Ventas: $' + totalVentas;
+}
+
+function guardarPedidosEnLocalStorage() {
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
+    actualizarResumenClientesEstados();
+}
+
+function cargarPedidosDeLocalStorage() {
+    var pedidosGuardados = localStorage.getItem('pedidos');
+    if (pedidosGuardados) {
+        pedidos = JSON.parse(pedidosGuardados);
+        limpiarListaClientes(); // Limpiar la lista antes de repoblarla
+        var nombresClientes = new Set(); // Utilizamos un conjunto para almacenar nombres únicos
+        pedidos.forEach(function(pedido) {
+            nombresClientes.add(pedido.cliente);
+        });
+        nombresClientes.forEach(function(cliente) {
+            agregarNombreALista(cliente);
+        });
+        actualizarTotalVentas();
+        actualizarTablaPedidos();
+        actualizarResumenClientesEstados();
+    }
+}
+
+function limpiarListaClientes() {
+    var listaClientes = document.getElementById('nombreCliente');
+    listaClientes.innerHTML = '';
+}
+
+
+function eliminarPedido(index) {
+    pedidos.splice(index, 1);
+    actualizarTotalVentas();
+    guardarPedidosEnLocalStorage();
+    actualizarTablaPedidos();
+}
+
+function confirmarYBorrarHistorial() {
+    var confirmacion = confirm("¿Estás seguro de que quieres borrar todo el historial de ventas? Esta acción no se puede deshacer.");
+    if (confirmacion) {
+        pedidos = [];
+        totalVentas = 0;
+        actualizarTablaPedidos();
+        actualizarResumenClientesEstados();
+        actualizarTotalVentas();
+        limpiarListaClientes();
+        localStorage.removeItem('pedidos');
+        alert("Historial de ventas borrado.");
+    }
+}
+
+function limpiarListaClientes() {
+    var listaClientes = document.getElementById('nombreCliente');
+    listaClientes.innerHTML = '';
+}
+
+function agregarNuevoNombreCliente() {
+    var nombreCliente = document.getElementById('nuevoNombreCliente').value.trim();
+    if (nombreCliente) {
+        agregarNombreALista(nombreCliente);
+        document.getElementById('nuevoNombreCliente').value = '';
+    } else {
+        alert('Por favor, introduce un nombre válido.');
+    }
+}
+
+function actualizarResumenClientesEstados() {
+    var resumen = document.getElementById('listaClientesEstados');
+    resumen.innerHTML = '';
+    var clientes = {};
+
+    // Recopilar información de los pedidos
+    pedidos.forEach(function(pedido) {
+        if (!clientes[pedido.cliente]) {
+            clientes[pedido.cliente] = { total: 0, totalEnviado: [], pagado: [], tipoEntrega: '' };
+        }
+        clientes[pedido.cliente].total += pedido.precio;
+        clientes[pedido.cliente].totalEnviado.push(pedido.totalEnviado);
+        clientes[pedido.cliente].pagado.push(pedido.pagado);
+        clientes[pedido.cliente].tipoEntrega = pedido.tipoEntrega;
+    });
+
+    // Convertir el objeto de clientes en un array y ordenarlo
+    var clientesArray = Object.keys(clientes).map(function(key) {
+        return { cliente: key, ...clientes[key] };
+    });
+
+    clientesArray.sort(function(a, b) {
+        return b.total - a.total;
+    });
+
+    // Construir el resumen de clientes en la interfaz de usuario
+    clientesArray.forEach(function(cliente) {
+        var div = document.createElement('div');
+        div.className = 'cliente-estado';
+        var tipoEntregaSeleccionado = cliente.tipoEntrega;
+
+        div.innerHTML = `
+            <span>${cliente.cliente}: $${cliente.total}</span>
+            <label><input type="checkbox" onchange="toggleEstado('${cliente.cliente}', 'totalEnviado')" ${cliente.totalEnviado.every(Boolean) ? 'checked' : ''}> Total Enviado</label>
+            <label><input type="checkbox" onchange="toggleEstado('${cliente.cliente}', 'pagado')" ${cliente.pagado.every(Boolean) ? 'checked' : ''}> Pagado</label>
+            <select onchange="cambiarTipoEntrega('${cliente.cliente}', this.value)">
+                <option value="" ${tipoEntregaSeleccionado === '' ? 'selected' : ''}>Seleccionar Entrega</option>
+                <option value="delivery" ${tipoEntregaSeleccionado === 'delivery' ? 'selected' : ''}>Delivery Presencial</option>
+                <option value="envio" ${tipoEntregaSeleccionado === 'envio' ? 'selected' : ''}>Envío por Agencia</option>
+            </select>
+        `;
+        resumen.appendChild(div);
+    });
+}
+
+
+function toggleEstado(cliente, estado) {
+    pedidos.forEach(function(pedido) {
+        if (pedido.cliente === cliente) {
+            pedido[estado] = !pedido[estado];
+        }
+    });
+    guardarPedidosEnLocalStorage();
+}
+
+function cambiarTipoEntrega(cliente, tipo) {
+    pedidos = pedidos.map(pedido => {
+        if (pedido.cliente === cliente) {
+            return {...pedido, tipoEntrega: tipo};
+        }
+        return pedido;
+    });
+    guardarPedidosEnLocalStorage();
+    actualizarResumenClientesEstados();
+}
+
+
+function exportarResumenClientes() {
+    var resumen = {};
+    pedidos.forEach(function(pedido) {
+        if (!resumen[pedido.cliente]) {
+            resumen[pedido.cliente] = 0;
+        }
+        resumen[pedido.cliente] += pedido.precio;
+    });
+
+    var contenido = 'Cliente, Total\n';
+    for (var cliente in resumen) {
+        contenido += cliente + ', ' + resumen[cliente] + '\n';
+    }
+    descargarArchivo(contenido, 'resumen_clientes.txt');
+}
+
+function exportarDetallesPedidos() {
+    var contenido = 'Cliente, Código Prenda, Precio, Tipo Entrega\n';
+    pedidos.forEach(function(pedido) {
+        contenido += pedido.cliente + ', ' + pedido.codigo + ', ' + pedido.precio + ', ' + (pedido.tipoEntrega || 'N/A') + '\n';
+    });
+    descargarArchivo(contenido, 'detalles_pedidos.txt');
+}
+function exportarGestionEstados() {
+    var contenido = 'Cliente, Total, Pagado, Tipo Entrega\n';
+    var resumenClientes = {};
+
+    // Agrupar la información por cliente
+    pedidos.forEach(function(pedido) {
+        if (!resumenClientes[pedido.cliente]) {
+            resumenClientes[pedido.cliente] = { total: 0, pagado: [], tipoEntrega: '' };
+        }
+        resumenClientes[pedido.cliente].total += pedido.precio;
+        resumenClientes[pedido.cliente].pagado.push(pedido.pagado);
+        resumenClientes[pedido.cliente].tipoEntrega = pedido.tipoEntrega;
+    });
+
+    // Compilar la información para la exportación
+    for (var cliente in resumenClientes) {
+        var clienteInfo = resumenClientes[cliente];
+        contenido += cliente + ', ' + clienteInfo.total + ', ' + (clienteInfo.pagado.every(Boolean) ? 'Sí' : 'No') + ', ' + (clienteInfo.tipoEntrega || 'N/A') + '\n';
+    }
+
+    descargarArchivo(contenido, 'gestion_estados.txt');
+}
+
+
+
+function descargarArchivo(contenido, nombreArchivo) {
+    var elemento = document.createElement('a');
+    elemento.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(contenido));
+    elemento.setAttribute('download', nombreArchivo);
+
+    elemento.style.display = 'none';
+    document.body.appendChild(elemento);
+
+    elemento.click();
+
+    document.body.removeChild(elemento);
+}
+
+window.onload = cargarPedidosDeLocalStorage;
+
+    </script>
+</body>
+</html>
