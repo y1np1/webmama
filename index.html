@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas Automatizadas v1.0</title>
+    <title>Ventas Automatizadas - VestirDannyFraan</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h1>Registro de Ventas</h1>
         <div id="sales-form">
-            <input type="text" id="garment-number" placeholder="Numero de Prenda" required>
+            <input type="text" id="garment-number" placeholder="Número de Prenda" required>
             <input type="number" id="garment-value" placeholder="Precio de Prenda" required>
-            <div id="person-entry">
-                <input type="text" id="new-person" placeholder="Ingresar nuevo cliente" required>
-                <button id="add-person-button">Agregar Cliente</button>
-            </div>
+            
+            <!-- Lista desplegable para seleccionar el cliente adjudicado -->
             <select id="awarded-person-select" required></select>
+            
+            <!-- Sección para ingresar y añadir un nuevo cliente -->
+            <div id="person-entry">
+                <button id="add-person-button">Agregar Cliente</button>
+                <input type="text" id="new-person" placeholder="Ingresar nuevo cliente" required>
+            </div>
+            
             <button id="submit-button">Adjudicar</button>
-            <button id="clear-history-button">BORRAR HISTORIAL</button>
+            <button id="clear-history-button">Borrar Historial</button>
             <button id="export-history-button">Exportar Historial Detallado</button>
             <button id="export-totals-button">Exportar Total Por Persona</button>
             <button id="edit-person-button">Editar Nombre</button>
         </div>
         <div id="person-history">
-            <!-- Historial de personas se generará aquí -->
+            <!-- El historial de personas se generará aquí -->
         </div>
         <div id="order-summary" class="card">
             <h2>Historial de clientes</h2>
-            <!-- Contenido de historial de clientes -->
+            <!-- Contenido del historial de clientes -->
         </div>
         <div id="item-log" class="card">
             <h2>Registro De Prendas</h2>
             <ul id="log-list"></ul>
         </div>
     </div>
+    
+    <!-- Footer agregado al final de la página -->
+    <footer class="footer">
+        <p>© 2024 VestirDannyFraan. Todos los derechos reservados.</p>
+    </footer>
+    
     <script src="script.js"></script>
 </body>
 </html>
+
