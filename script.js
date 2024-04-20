@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Function to validate form input
     function validateInput() {
         if (!garmentNumberInput.value.trim() || !garmentValueInput.value.trim() || isNaN(garmentValueInput.value)) {
-            alert('Please enter valid garment number and value.');
+            alert('Por favor ingresa datos validos.');
             return false;
         }
         return true;
