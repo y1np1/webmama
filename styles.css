@@ -1,0 +1,131 @@
+/* Variables de color para fácil edición */
+:root {
+    --bg-color: #121212;
+    --card-color: #1c1c1c;
+    --text-color: #ffffff;
+    --primary-button: #4CAF50;
+    --secondary-button: #555;
+    --delete-button: #f44336;
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    padding: 20px;
+    max-width: 500px;
+    margin: auto;
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #222;
+    color: #fff;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #666;
+}
+
+#submit-button {
+    background-color: var(--primary-button);
+    animation: pulse 2s infinite;
+}
+
+#clear-history-button, #export-history-button, #export-totals-button, #edit-person-button {
+    background-color: var(--secondary-button);
+}
+
+.card {
+    background-color: var(--card-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* Listas de historial */
+.person-history ul, #log-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.person-history ul li, #log-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    margin-bottom: 5px;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.delete-button {
+    background-color: var(--delete-button);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: none;
+}
+
+.garment-item:hover .delete-button {
+    display: inline;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: white;
+    border-top: 1px solid #444;
+    margin-top: 30px;
+}
